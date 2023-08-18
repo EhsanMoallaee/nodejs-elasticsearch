@@ -51,15 +51,44 @@ async function removeBlog(req, res, next) {
         const deleteResult = await elasticClient.deleteByQuery({
             index: blogIndex,
             query: {
-                match: {_id: id}
+                match: { _id: id }
             }
         })
         if(!deleteResult  || deleteResult.deleted == 0) throw createHttpError.BadRequest('Blog deletion failed');
         return res.status(200).json({
             status: 200,
-            message: 'Blog deleted successfully',
+            message: 'Blog deleted successfully'
+        })
+    } catch (error) {
+        next(error);
+    }
+}
+
+async function updateBlog(req, res, next) {
+    try {
+        const {id} = req.params;
+        const data = req.body;
+        Object.keys(data).forEach(key => {
+            if(!data[key]) delete data[key];
+        })
+        const blog = await elasticClient.search({
+            index: blogIndex,
+            query: {
+                match: { _id: id }
+            }
+        }).hits.hits?.[0] || {};
+        const payload = blog?._source || {};
+        const updateResult = await elasticClient.index({
+            index: blogIndex,
+            id,
+            body: { ...payload, ...data}
+        })
+        if(!updateResult  || updateResult.result != 'updated') throw createHttpError.BadRequest('Blog update failed');
+        return res.status(200).json({
+            status: 200,
+            message: 'Blog updated successfully',
             data: {
-                deleteResult
+                updateResult
             }
         })
     } catch (error) {
@@ -95,6 +124,7 @@ module.exports = {
     getAllBlogs,
     addBlog,
     removeBlog,
+    updateBlog,
     findBlogByTitle,
     findBlogByRegex
 }
