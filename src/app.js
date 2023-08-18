@@ -1,8 +1,7 @@
 const express = require('express');
 const expressEjsLayouts = require('express-ejs-layouts');
-const { router } = require('./router/router');
+const { apiRouter } = require('./router/api.routes');
 require('dotenv').config();
-
 const app = express();
 
 //configs and builtin middlewares
@@ -13,8 +12,7 @@ app.set('view engine', 'ejs');
 app.use(expressEjsLayouts);
 app.set('views', 'views');
 app.set('layout', './layouts/master');
-
-app.use(router);
+app.use(apiRouter);
 
 app.use((req, res, next) => {
     return res.status(404).json({
