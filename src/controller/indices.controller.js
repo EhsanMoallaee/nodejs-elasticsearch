@@ -7,7 +7,6 @@ async function createNewIndex(req, res, next) {
         if(!indexName || indexName.trim() == '') throw createHttpError.BadRequest('Index name is required');
         const result = await elasticClient.indices.create({index: indexName});
         if(!result) throw createHttpError.InternalServerError('Internal server error occured!');
-        console.log(result);
         return res.status(201).json({
             status: 201,
             message: 'Elastic search index created successfully',
@@ -39,8 +38,6 @@ async function getAllIndices(req, res, next) {
         const indices = await elasticClient.indices.getAlias();
         const regexp = /^\.+/
         const foundIndices = Object.keys(indices).filter(item => !regexp.test(item));
-        console.log('foundIndices : ', foundIndices);
-        console.log('foundIndices.length : ', foundIndices.length);
         if(!indices || foundIndices.length == 0) throw createHttpError.NotFound('Indices not found');
         return res.status(200).json({
             status: 200,
