@@ -22,7 +22,13 @@ async function createNewIndex(req, res, next) {
 
 async function removeIndex(req, res, next) {
     try {
-        
+        const { indexName } = req.params;
+        const removeResult = await elasticClient.indices.delete({index: indexName});
+        if(!removeResult || !removeResult.acknowledged) createHttpError.NotFound('Indice not found');
+        return res.status(200).json({
+            status: 200,
+            message: `Elastic index: (${indexName}) removed successfully`
+        })
     } catch (error) {
         next(error);
     }
@@ -35,7 +41,7 @@ async function getAllIndices(req, res, next) {
         const regexp = /^\.+/
         return res.status(200).json({
             status: 200,
-            message: 'Elastic search index created successfully',
+            message: 'Elastic indices found successfully',
             data: {
                 indices: Object.keys(indices).filter(item => !regexp.test(item))
             }

@@ -21,9 +21,10 @@ app.use((req, res, next) => {
     })
 });
 app.use((err, req, res, next) => {
-    return res.status(err.status || 500).json({
-        status: err.status || 500,
-        message: 'Internal server error occured!'
+    // console.log('err : ', err);
+    return res.status(err.status || err.statusCode || 500).json({
+        status: err.status || err.statusCode || 500,
+        message: err.message || 'Internal server error occured!'
     })
 });
 
