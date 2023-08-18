@@ -4,9 +4,9 @@ const { elasticClient } = require("../../config/elastic.config");
 async function createNewIndex(req, res, next) {
     try {
         const { indexName } = req.body;
-        if(!indexName || indexName.trim() == '') createHttpError.BadRequest('Index name is required');
+        if(!indexName || indexName.trim() == '') throw createHttpError.BadRequest('Index name is required');
         const result = await elasticClient.indices.create({index: indexName});
-        if(!result) createHttpError.InternalServerError('Internal server error occured!');
+        if(!result) throw createHttpError.InternalServerError('Internal server error occured!');
         console.log(result);
         return res.status(201).json({
             status: 201,
@@ -24,7 +24,7 @@ async function removeIndex(req, res, next) {
     try {
         const { indexName } = req.params;
         const removeResult = await elasticClient.indices.delete({index: indexName});
-        if(!removeResult || !removeResult.acknowledged) createHttpError.NotFound('Indice not found');
+        if(!removeResult || !removeResult.acknowledged) throw createHttpError.NotFound('Indice not found');
         return res.status(200).json({
             status: 200,
             message: `Elastic index: (${indexName}) removed successfully`
@@ -37,8 +37,11 @@ async function removeIndex(req, res, next) {
 async function getAllIndices(req, res, next) {
     try {
         const indices = await elasticClient.indices.getAlias();
-        if(!indices) createHttpError.NotFound('Indices not found');
         const regexp = /^\.+/
+        const foundIndices = Object.keys(indices).filter(item => !regexp.test(item));
+        console.log('foundIndices : ', foundIndices);
+        console.log('foundIndices.length : ', foundIndices.length);
+        if(!indices || foundIndices.length == 0) throw createHttpError.NotFound('Indices not found');
         return res.status(200).json({
             status: 200,
             message: 'Elastic indices found successfully',
