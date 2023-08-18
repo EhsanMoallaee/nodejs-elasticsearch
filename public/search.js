@@ -1,22 +1,21 @@
-const input = document.getElementById("search");
+const input = document.getElementById("searchText");
 const datalist = document.getElementById("blog-result");
 input.addEventListener("keyup", async function() {
     datalist.innerHTML = "";
-    const search = this.value;
-    const result = await (await fetch(`http://localhost:3333/blog/findBlogByMultifield?search=${search}`)).json()
+    const searchText = this.value;
+    const result = await (await fetch(`http://127.0.0.1:3000/blogs/regexp-multifields-search?searchText=${searchText}`)).json();
     for (const blog of result) {
         const item = document.createElement("li");
-        item.innerHTML = blog._source.title
+        item.innerHTML = "Title : " + blog._source.title
         const br = document.createElement("br");
         const small = document.createElement("small");
         const strong = document.createElement("strong");
-        small.innerHTML = blog._source.text
-        strong.innerHTML = blog._source.author
-        item.appendChild(br)
-        item.appendChild(br)
-        item.appendChild(small)
+        strong.innerHTML = "Text : " + blog._source.text
+        small.innerHTML = "Author : " + blog._source.author
+        datalist.appendChild(item)
         item.appendChild(br)
         item.appendChild(strong)
-        datalist.appendChild(item)
+        item.appendChild(br.cloneNode(true))
+        item.appendChild(small)
     }
 })
