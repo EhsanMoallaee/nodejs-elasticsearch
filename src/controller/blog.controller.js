@@ -96,6 +96,32 @@ async function updateBlog(req, res, next) {
     }
 }
 
+async function updateBlogTypeTwo(req, res, next) {
+    try {
+        const {id} = req.params;
+        const data = req.body;
+        Object.keys(data).forEach(key => {
+            if(!data[key]) delete data[key];
+        });
+
+        const updateResult = await elasticClient.update({
+            index: blogIndex,
+            id,
+            doc: data
+        })
+        if(!updateResult  || updateResult.result != 'updated') throw createHttpError.BadRequest('Blog update failed');
+        return res.status(200).json({
+            status: 200,
+            message: 'Blog updated successfully',
+            data: {
+                updateResult
+            }
+        })
+    } catch (error) {
+        next(error);
+    }
+}
+
 async function findBlogByTitle(req, res, next) {
     try {
         
@@ -125,6 +151,7 @@ module.exports = {
     addBlog,
     removeBlog,
     updateBlog,
+    updateBlogTypeTwo,
     findBlogByTitle,
     findBlogByRegex
 }
