@@ -196,6 +196,35 @@ async function findBlogByRegex(req, res, next) {
     }
 }
 
+async function findBlogByRegexMultiFields(req, res, next) {
+    try {
+        const { searchText } = req.query;
+        const result = await elasticClient.search({
+            index: blogIndex,
+            query: {
+                bool: { 
+                    should: [
+                        { regexp: { title: `.*${searchText}.*` } },
+                        { regexp: { text: `.*${searchText}.*` } },
+                        { regexp: { author: `.*${searchText}.*` } },
+                    ]
+                 }
+            }
+        })
+        if(!result  || result.length == 0) throw createHttpError.BadRequest('Blog not found');
+        const blogs = result.hits.hits;
+        return res.status(200).json({
+            status: 200,
+            message: 'Blog found successfully',
+            data: {
+                blogs
+            }
+        })
+    } catch (error) {
+        next(error);
+    }
+}
+
 module.exports = {
     getAllBlogs,
     addBlog,
@@ -204,5 +233,6 @@ module.exports = {
     updateBlogTypeTwo,
     findBlogByTitle,
     findBlogByRegex,
-    findBlogByMultiFields
+    findBlogByMultiFields,
+    findBlogByRegexMultiFields
 }
