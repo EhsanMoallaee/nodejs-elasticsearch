@@ -47,7 +47,21 @@ async function addBlog(req, res, next) {
 
 async function removeBlog(req, res, next) {
     try {
-        
+        const {id} = req.params;
+        const deleteResult = await elasticClient.deleteByQuery({
+            index: blogIndex,
+            query: {
+                match: {_id: id}
+            }
+        })
+        if(!deleteResult  || deleteResult.deleted == 0) throw createHttpError.BadRequest('Blog deletion failed');
+        return res.status(200).json({
+            status: 200,
+            message: 'Blog deleted successfully',
+            data: {
+                deleteResult
+            }
+        })
     } catch (error) {
         next(error);
     }
