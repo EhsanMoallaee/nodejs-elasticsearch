@@ -147,7 +147,25 @@ async function findBlogByTitle(req, res, next) {
 
 async function findBlogByMultiFields(req, res, next) {
     try {
-        
+        const { searchText } = req.query;
+        const result = await elasticClient.search({
+            index: blogIndex,
+            query: {
+                multi_match: { 
+                    query: searchText,
+                    fields: ['title', 'text']
+                 }
+            }
+        })
+        if(!result  || result.length == 0) throw createHttpError.BadRequest('Blog not found');
+        const blogs = result.hits.hits;
+        return res.status(200).json({
+            status: 200,
+            message: 'Blog found successfully',
+            data: {
+                blogs
+            }
+        })
     } catch (error) {
         next(error);
     }
@@ -168,5 +186,6 @@ module.exports = {
     updateBlog,
     updateBlogTypeTwo,
     findBlogByTitle,
-    findBlogByRegex
+    findBlogByRegex,
+    findBlogByMultiFields
 }
