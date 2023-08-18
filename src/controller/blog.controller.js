@@ -9,6 +9,7 @@ async function getAllBlogs(req, res, next) {
             index: blogIndex,
             q: value
         })
+        if(!blogs || blogs.length == 0) throw createHttpError.BadRequest('Blog not found');
         return res.status(200).json({
             status: 200,
             message: 'Blogs found successfully',
@@ -124,7 +125,21 @@ async function updateBlogTypeTwo(req, res, next) {
 
 async function findBlogByTitle(req, res, next) {
     try {
-        
+        const { title } = req.query;
+        const result = await elasticClient.search({
+            index: blogIndex,
+            query: {
+                match: { title }
+            }
+        })
+        if(!result  || result.length == 0) throw createHttpError.BadRequest('Blog not found');
+        return res.status(200).json({
+            status: 200,
+            message: 'Blog found successfully',
+            data: {
+                result
+            }
+        })
     } catch (error) {
         next(error);
     }
