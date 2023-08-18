@@ -173,7 +173,24 @@ async function findBlogByMultiFields(req, res, next) {
 
 async function findBlogByRegex(req, res, next) {
     try {
-        
+        const { searchText } = req.query;
+        const result = await elasticClient.search({
+            index: blogIndex,
+            query: {
+                regexp: { 
+                    title: `.*${searchText}.*`
+                 }
+            }
+        })
+        if(!result  || result.length == 0) throw createHttpError.BadRequest('Blog not found');
+        const blogs = result.hits.hits;
+        return res.status(200).json({
+            status: 200,
+            message: 'Blog found successfully',
+            data: {
+                blogs
+            }
+        })
     } catch (error) {
         next(error);
     }

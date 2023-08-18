@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { addBlog, getAllBlogs, removeBlog, updateBlog, updateBlogTypeTwo, findBlogByTitle, findBlogByMultiFields } = require('../controller/blog.controller');
+const { addBlog, getAllBlogs, removeBlog, updateBlog, updateBlogTypeTwo, findBlogByTitle, findBlogByMultiFields, findBlogByRegex } = require('../controller/blog.controller');
 const blogRouter = Router();
 
 blogRouter.post('/add', addBlog);
@@ -9,6 +9,7 @@ blogRouter.put('/update/:id', updateBlog);
 blogRouter.patch('/update/:id', updateBlogTypeTwo);
 blogRouter.get('/findByTitle', findBlogByTitle);
 blogRouter.get('/multi-fields', findBlogByMultiFields);
+blogRouter.get('/regexp-search', findBlogByRegex);
 
 module.exports = {
     blogRouter
